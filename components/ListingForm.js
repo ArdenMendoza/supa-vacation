@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import { Formik, Form } from 'formik';
 import Input from '@/components/Input';
 import ImageUpload from '@/components/ImageUpload';
+import axios from 'axios'
 
 const ListingSchema = Yup.object().shape({
   title: Yup.string().trim().required(),
@@ -27,8 +28,22 @@ const ListingForm = ({
   const [disabled, setDisabled] = useState(false);
   const [imageUrl, setImageUrl] = useState(initialValues?.image ?? '');
 
-  const upload = async image => {
-    // TODO: Upload image to remote storage
+  const upload = async (image) => {
+    if (!image) return;
+
+    let toastId;
+    try {
+      setDisabled(true);
+      toastId = toast.loading('Uploading...');
+      const { data } = await axios.post('/api/image-upload', { image });
+      setImageUrl(data?.url);
+      toast.success('Successfully uploaded', { id: toastId });
+    } catch (e) {
+      toast.error('Unable to upload', { id: toastId });
+      setImageUrl('');
+    } finally {
+      setDisabled(false);
+    }
   };
 
   const handleOnSubmit = async (values = null) => {
@@ -63,7 +78,7 @@ const ListingForm = ({
 
   return (
     <div>
-      <div className="mb-8 max-w-md">
+      <div className='mb-8 max-w-md'>
         <ImageUpload
           initialImage={{ src: image, alt: initialFormValues.title }}
           onChangePicture={upload}
@@ -77,67 +92,67 @@ const ListingForm = ({
         onSubmit={handleOnSubmit}
       >
         {({ isSubmitting, isValid }) => (
-          <Form className="space-y-8">
-            <div className="space-y-6">
+          <Form className='space-y-8'>
+            <div className='space-y-6'>
               <Input
-                name="title"
-                type="text"
-                label="Title"
-                placeholder="Entire rental unit - Amsterdam"
+                name='title'
+                type='text'
+                label='Title'
+                placeholder='Entire rental unit - Amsterdam'
                 disabled={disabled}
               />
 
               <Input
-                name="description"
-                type="textarea"
-                label="Description"
-                placeholder="Very charming and modern apartment in Amsterdam..."
+                name='description'
+                type='textarea'
+                label='Description'
+                placeholder='Very charming and modern apartment in Amsterdam...'
                 disabled={disabled}
                 rows={5}
               />
 
               <Input
-                name="price"
-                type="number"
-                min="0"
-                label="Price per night"
-                placeholder="100"
+                name='price'
+                type='number'
+                min='0'
+                label='Price per night'
+                placeholder='100'
                 disabled={disabled}
               />
 
-              <div className="flex space-x-4">
+              <div className='flex space-x-4'>
                 <Input
-                  name="guests"
-                  type="number"
-                  min="0"
-                  label="Guests"
-                  placeholder="2"
+                  name='guests'
+                  type='number'
+                  min='0'
+                  label='Guests'
+                  placeholder='2'
                   disabled={disabled}
                 />
                 <Input
-                  name="beds"
-                  type="number"
-                  min="0"
-                  label="Beds"
-                  placeholder="1"
+                  name='beds'
+                  type='number'
+                  min='0'
+                  label='Beds'
+                  placeholder='1'
                   disabled={disabled}
                 />
                 <Input
-                  name="baths"
-                  type="number"
-                  min="0"
-                  label="Baths"
-                  placeholder="1"
+                  name='baths'
+                  type='number'
+                  min='0'
+                  label='Baths'
+                  placeholder='1'
                   disabled={disabled}
                 />
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className='flex justify-end'>
               <button
-                type="submit"
+                type='submit'
                 disabled={disabled || !isValid}
-                className="bg-rose-600 text-white py-2 px-6 rounded-md focus:outline-none focus:ring-4 focus:ring-rose-600 focus:ring-opacity-50 hover:bg-rose-500 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-rose-600"
+                className='bg-rose-600 text-white py-2 px-6 rounded-md focus:outline-none focus:ring-4 focus:ring-rose-600 focus:ring-opacity-50 hover:bg-rose-500 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-rose-600'
               >
                 {isSubmitting ? 'Submitting...' : buttonText}
               </button>
