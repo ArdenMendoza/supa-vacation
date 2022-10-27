@@ -59,28 +59,28 @@ export async function getStaticPaths() {
     paths: homes.map((home) => ({
       params: { id: home.id },
     })),
-    fallback: false,
+    fallback: true,
   };
 }
 
 export async function getStaticProps({ params }) {
-    // Get the current home from the database
-    const home = await prisma.home.findUnique({
-      where: { id: params.id },
-    });
-  
-    if (home) {
-      return {
-        props: JSON.parse(JSON.stringify(home)),
-      };
-    }
-  
+  // Get the current home from the database
+  const home = await prisma.home.findUnique({
+    where: { id: params.id },
+  });
+
+  if (home) {
     return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
+      props: JSON.parse(JSON.stringify(home)),
     };
   }
+
+  return {
+    redirect: {
+      destination: '/',
+      permanent: false,
+    },
+  };
+}
 
 export default ListedHome;
